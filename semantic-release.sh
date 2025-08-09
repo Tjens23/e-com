@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
-commits=$(git log ${latest_tag}..HEAD --pretty=format:"%s%n%b")
+# Get latest tag or empty
+if git describe --tags --abbrev=0 >/dev/null 2>&1; then
+    latest_tag=$(git describe --tags --abbrev=0)
+    commit_range="${latest_tag}..HEAD"
+else
+    latest_tag="0.0.0"
+    commit_range="$(git rev-list --max-parents=0 HEAD)..HEAD" # from first commit
+fi
+
+commits=$(git log $commit_range --pretty=format:"%s%n%b")
 
 if echo "$commits" | grep -q "BREAKING CHANGE:"; then
     release_type="major"
@@ -27,4 +35,3 @@ git tag "$new_version"
 git push origin "$new_version"
 
 echo "Released $new_version ($release_type)"
-
