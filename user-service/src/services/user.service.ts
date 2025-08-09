@@ -1,9 +1,22 @@
 import User from "../database/models/user.entity";
 import { Response, Request } from "express";
-import { hashPassword } from "../Utils/auth";
+import { hashPassword } from "../Utils/utils";
+import { CANCELLED } from "dns/promises";
 
-export const findOne = async (id: number): Promise<User | null> => {
-  return await User.findOne({ where: { id } });
+export const findOne = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  try {
+    const user = await User.findOne({ where: { id: parseInt(id) } });
+    if (!user)
+      return res
+        .json({
+          message: `User with id ${id} doesn't exsits in our database...`,
+        })
+        .status(404);
+    return user;
+  } catch (err: any) {
+    res.json({ message: `Failed to get user with data: ${req.params.id}` });
+  }
 };
 
 export const createUser = async (req: Request, res: Response) => {
