@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Get latest tag or empty
 if git describe --tags --abbrev=0 >/dev/null 2>&1; then
     latest_tag=$(git describe --tags --abbrev=0)
     commit_range="${latest_tag}..HEAD"
 else
     latest_tag="0.0.0"
-    commit_range="$(git rev-list --max-parents=0 HEAD)..HEAD" # from first commit
+    commit_range="$(git rev-list --max-parents=0 HEAD)..HEAD"
 fi
 
 commits=$(git log $commit_range --pretty=format:"%s%n%b")
@@ -34,4 +33,8 @@ new_version="$major.$minor.$patch"
 git tag "$new_version"
 git push origin "$new_version"
 
+# Output for GitHub Actions
+echo "version=$new_version" >> "$GITHUB_OUTPUT"
+
 echo "Released $new_version ($release_type)"
+
