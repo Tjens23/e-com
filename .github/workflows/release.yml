@@ -1,5 +1,4 @@
 name: Semantic Release
-
 on:
   push:
     branches: [ main ]
@@ -9,23 +8,22 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
       - name: Run semantic release script
         id: semrel
         run: bash ./semantic-release.sh
-
+      
       - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.semrel.outputs.version != ''
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.semrel.outputs.version }}
-          release_name: Release ${{ steps.semrel.outputs.version }}
-          draft: false
-          prerelease: false
-
+          name: Release ${{ steps.semrel.outputs.version }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
