@@ -1,6 +1,6 @@
 import User from "../database/models/user.entity";
 import { Response, Request } from "express";
-import { hashPassword } from "../Utils/auth";
+import { hashPassword } from "../Utils/utils";
 
 export const findOne = async (id: number): Promise<User | null> => {
   return await User.findOne({ where: { id } });
@@ -44,7 +44,7 @@ export const updateUser = async (req: Request, res: Response) => {
       user: { id: user.id, email: user.email },
     });
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: `Internal server error ${error}` });
   }
 };
 
@@ -59,6 +59,6 @@ export const deleteUser = async (req: Request, res: Response) => {
     await user.remove();
     return res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: `Internal server error: ${error}` });
   }
 };
