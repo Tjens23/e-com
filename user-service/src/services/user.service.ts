@@ -7,15 +7,21 @@ export const findOne = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
     const user = await User.findOne({ where: { id: parseInt(id) } });
-    if (!user)
-      return res
-        .json({
-          message: `User with id ${id} doesn't exsits in our database...`,
-        })
-        .status(404);
-    return user;
+    if (!user) {
+      return res.status(404).json({
+        message: `User with id ${id} doesn't exist in our database...`,
+      });
+    }
+
+    // Send the user data back as response
+    return res.status(200).json({
+      user: { id: user.id, email: user.email },
+    });
   } catch (err: any) {
-    res.json({ message: `Failed to get user with data: ${req.params.id}` });
+    return res.status(500).json({
+      message: `Failed to get user with id: ${req.params.id}`,
+      error: err.message,
+    });
   }
 };
 
