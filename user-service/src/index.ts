@@ -5,8 +5,8 @@ import { UserRouter } from "./controller/user.controller";
 (async () => {
   const app = express();
   await AppDataSource.initialize();
+  app.use(express.json());
   app.use(UserRouter);
-
   app.get("/", (_req, res) => {
     res.json({ message: "Hello world!" }).status(200);
   });
